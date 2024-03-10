@@ -587,10 +587,8 @@ app.listen(8000, () => {
     console.log('this is running on port 8000');
 })
 
-*/
 
 //lets refractor our code into smaller modules
-
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
@@ -603,10 +601,107 @@ app.use((req, res, next) => {
     next();
 })
 
-//ROUTE AS MIDDLEWARE
 
-app.use('/', practiceRoutes)
+// app.get('/', getRequest) is same as
+// app.route('/').get(getRequest)
+// app.post('/', createHttpRequest) is same as
+// app.route('/').Post(createHttpRequest)
+//now we can call both in chaining how see
+//app.route('/').get(getRequest).post(createHttpRequest)
+// app.get('/:id', getRequestWithId)
+// app.patch('/update', updateRequest)
+// app.delete('/delete', deleteRequest)
+/////////////////////////////
+//different way to call http request using app.route()................
+app
+.route('/')
+    .get(getRequest)
+    .post(createHttpRequest)
+app.
+    route('/:id')
+    .get(getRequestWithId)
+app
+    .route('/update')
+    .patch(updateRequest)
+app
+.route('/delete')
+    .delete(deleteRequest)
 
+    
+    
+    app.listen(8000, () => {
+        console.log('this is running on port 8000');
+    })
+
+
+    //////////////////////
+    // Learn Mounting
+    
+const express = require('express');
+const app = express();
+const morgan = require('morgan');
+const practiceRoutes = require('./practiceRoutes')
+
+app.use(express.json())
+app.use(morgan('dev'))
+app.use((req, res, next) => {
+    console.log('hello from the middleware');
+    next();
+})
+
+//////////////////
+//lets create router for each route to handle
+
+//here app is basically express(),means expressjs has methods called an app object and now we fetch different method from this object
+//  ,now router is one such another objects which contains all these methods
+//lets implement it.
+//THis process also know as mounting.
+
+//but how to connect it with the app,so basically we create it as a middleware ,
+//since from request to response cycle they will be called depends on the
+//URL
+const router = express.Router();
+//lets create as middleware
+//app.use(path,callback)
+app.use('', router)
+
+router
+.route('/')
+.get(getRequest)
+.post(createHttpRequest)
+router.
+route('/:id')
+.get(getRequestWithId)
+router
+.route('/update')
+    .patch(updateRequest)
+router
+.route('/delete')
+.delete(deleteRequest)
+
+
+*/
+
+
+//////////////////////////////////////
+
+const express = require('express');
+const morgan = require('morgan');
+const practiceRoutes = require('./practiceRoutes')
+
+const app = express();
+const router = express.Router();
+
+
+app.use(express.json());
+app.use(morgan('dev'));
+app.use((req, res, next) => {
+    console.log('hello from the middleware');
+    next();
+})
+
+///ROUTE
+app.use('', router)
 
 
 app.listen(8000, () => {

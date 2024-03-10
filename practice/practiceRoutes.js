@@ -1,11 +1,20 @@
-const express = require('express')
-const practiceController = require('./practiceController')
+const express = require('express');
+const practiceController = require('./practiceController');
+const router = express.Router();
 
-const router = express.Router()
+router
+    .route('/')
+    .get(getRequest)
+    .post(createHttpRequest)
+router.
+    route('/:id')
+    .get(getRequestWithId)
+router
+    .route('/update')
+    .patch(updateRequest)
+router
+    .route('/delete')
+    .delete(deleteRequest)
 
-router.route('/').get(practiceController.getRequest).post(practiceController.createHttpRequest)
-router.route('/:id').get(practiceController.getRequestWithId)
-router.route('/update').patch(practiceController.updateRequest)
-router.route('/delete').delete(practiceController.deleteRequest)
 
-module.export = router;
+module.exports = router;
