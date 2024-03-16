@@ -1,30 +1,29 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
-const tourSchema = new mongoose.Schema({
+const practiceSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true, "A tour must have a name"],
+        required: [true, "A practice must have a name"],
         unique: true,
         trim: true
     },
     duration: {
         type: Number,
-        required: [true, 'A Tout must have a duration']
+        required: [true, 'A Practice must have a duration']
     },
     maxGroupSize: {
         type: Number,
-        required: [true, 'A tour must have a group size']
+        required: [true, 'A practice must have a group size']
     },
     difficulty: {
         type: String,
-        required: [true, 'A tour must have a diffculty']
+        required: [true, 'A practice must have a difficulty']
     },
-
     ratingsAverage: {
         type: Number,
         default: 4.5,
     },
-    ratingQuantity: {
+    ratingQuality: {
         type: Number,
         default: 0
     },
@@ -38,10 +37,8 @@ const tourSchema = new mongoose.Schema({
         type: String,
         trim: true
     }
-});
+})
 
-
-const Tour = mongoose.model('Tour', tourSchema)
-
+const Tour = mongoose.model('Tour', practiceSchema);
 
 module.exports = Tour;

@@ -703,8 +703,5 @@ app.use((req, res, next) => {
 ///ROUTE
 app.use('', router)
 
-
-app.listen(8000, () => {
-    console.log('this is running on port 8000');
-})
+module.exports = app;
 
