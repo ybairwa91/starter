@@ -65,8 +65,7 @@ const tourSchema = new mongoose.Schema(
 
 );
 
-//////////////////////////////
-//CREATE  A SCRIPT that will import the tours-sample.json file into our mongoDB database
+
 
 
 const Tour = mongoose.model('Tour', tourSchema)

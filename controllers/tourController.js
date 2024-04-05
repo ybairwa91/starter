@@ -95,13 +95,14 @@ exports.deleteTour = (req, res) => {
 };
 */
 
+/*
+
 //////////////////////////////
 //lets use mongoDb
 const fs = require('fs')
 const Tour = require('../models/tourModel');
 
 
-/*
 //How to create new Document in Database
 
 exports.createTour = async (req, res) => {
@@ -131,7 +132,6 @@ exports.createTour = async (req, res) => {
         }
     })
 }
-*/
 
 //HANDLE ERRORS AS WELL SINCE NOW ITS ASYNCHRONOUS GAME
 exports.createTour = async (req, res) => {
@@ -243,6 +243,188 @@ exports.updateTour = async (req, res) => {
 
 ////////////////////////////////////////
 ///deleting document
+
+exports.deleteTour = async (req, res) => {
+    try {
+        await Tour.findByIdAndDelete(req.params.id)
+        res.status(204).json({
+            status: 'success',
+            data: null
+        })
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
+};
+       
+*/
+
+//////////////////////////////////////////////////
+
+///QUERY STRING GAME
+
+const fs = require('fs')
+const Tour = require('../models/tourModel');
+const { query } = require('express');
+
+exports.createTour = async (req, res) => {
+    try {
+        const newTour = await Tour.create(req.body);
+
+        res.status(201).json({
+            status: 'success',
+
+            data: {
+                tour: newTour
+            }
+        })
+
+    } catch (err) {
+        res.status(400).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+}
+
+
+
+/*
+exports.getAllTours = async (req, res) => {
+    try {
+
+        //req.qury give us nicely formated object with the data
+        // console.log(req.query);
+
+        //GET ALL TOURS WITHOUT ANY QUERY
+        // const tours = await Tour.find();
+
+        //GET ALL TOURS BUT WITH FILTERING THROUGH PASSING Queries
+        // const tours = await Tour.find({
+        //     duration: 5,
+        //     difficulty: 'easy'
+        // })
+
+        //Another way[dynamic depends on your url]
+        // const tours = await Tour.find(req.query)
+
+        //Another way
+        //special mongoose methods
+        // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
+
+        ///////////////////////////////////
+        //issues with these all are what if we have a url which have other parameters then what to do
+        //so we need to exclude this fields from out accessing query methods lets see how
+
+
+        //Handle it in better way
+        //step1.make a copy of request url query and remove them
+        const queryObj = { ...req.query }
+        //array of wanting to exclude fields
+        const excludedFields = ['page', 'sort', 'limit', 'fields']
+        //Foreach change original array
+        excludedFields.forEach(el => delete queryObj[el]);
+
+        console.log(req.query, queryObj)
+
+
+        //thoda filter out krdiya to ab apan queryObj use krenge
+        const tours = await Tour.find(queryObj)
+
+        res.status(200).json({
+            status: 'success',
+            results: tours.length,
+            data: {
+                tours
+            }
+        });
+    } catch (err) {
+        res.send(404).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+};
+
+*/
+exports.getAllTours = async (req, res) => {
+    try {
+
+        const queryObj = { ...req.query }
+        const excludedFields = ['page', 'sort', 'limit', 'fields']
+        excludedFields.forEach(el => delete queryObj[el]);
+        console.log(req.query, queryObj)
+        //basically all these methods return queries
+        //and queries are itself objects in mongoose thats why we can chaining methods
+        // const tours = await Tour.find(queryObj)
+
+        ////////////////////////////
+        //bhai apan Tour.find ek query return karwayega to usko store krte h phle fir baad me await krwayngee
+        //1st We build the query
+        const query = Tour.find()
+
+        //2.EXECUTE THE QUERY
+        const tours = await query;
+
+
+        //SEND RESPONSE
+        res.status(200).json({
+            status: 'success',
+            results: tours.length,
+            data: {
+                tours
+            }
+        });
+    } catch (err) {
+        res.send(404).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+};
+
+
+exports.getTour = async (req, res) => {
+    try {
+        const tour = await Tour.findById(req.params.id);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                tour
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+}
+
+
+
+exports.updateTour = async (req, res) => {
+    try {
+        const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        res.status(200).json({
+            status: 'success',
+            data: {
+                // tour: tour, Thanks to ES6
+                tour,
+                runValidators: true
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
+};
+
+
 
 exports.deleteTour = async (req, res) => {
     try {
