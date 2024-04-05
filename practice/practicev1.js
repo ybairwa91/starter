@@ -62,7 +62,8 @@ app.listen(8000, () => {
 })
 ///////////////////
 // Post HTTP Method
-//it basically create something from the client side and then send to
+//it basically create something from the client side 
+//and then send to
 //server side then server side react to it
 //in simple words we create thing using POSTing
 
@@ -657,8 +658,10 @@ app.use((req, res, next) => {
 //lets implement it.
 //THis process also know as mounting.
 
-//but how to connect it with the app,so basically we create it as a middleware ,
-//since from request to response cycle they will be called depends on the
+//but how to connect it with the app,
+so basically we create it as a middleware ,
+//since from request to 
+response cycle they will be called depends on the
 //URL
 const router = express.Router();
 //lets create as middleware

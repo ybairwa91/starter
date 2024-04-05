@@ -34,6 +34,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 
+
 //basically parse incoming request json file and makes accessible to req.body object
 app.use(express.json());
 //see in public folder there are so many static files and we fetch them through nodejs but to work it smoothly we use static middleware
