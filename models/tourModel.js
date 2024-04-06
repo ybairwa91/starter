@@ -59,10 +59,7 @@ const tourSchema = new mongoose.Schema(
             default: Date.now()
         },
         startDate: [Date]
-
     }
-
-
 );
 
 

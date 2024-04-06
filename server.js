@@ -354,7 +354,8 @@ const app = require('./app');
 //mongodb+srv://ybairwa786:<PASSWORD>@cluster0.t6bzj27.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0 
 //[DATABASE_PASSWORD = gmj6fAqh8LXJG1gu]
 //isko ghumake likhna thaa na 
-const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
+const DB = process.env.DATABASE.replace('<PASSWORD>',
+    process.env.DATABASE_PASSWORD);
 
 //lets connnect our expressjs to mongoDB database as well using mongoose driver
 mongoose.connect(DB, {

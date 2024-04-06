@@ -258,11 +258,13 @@ exports.deleteTour = async (req, res) => {
         })
     }
 };
-       
+
 */
 
 //////////////////////////////////////////////////
 
+
+/*
 ///QUERY STRING GAME
 
 const fs = require('fs')
@@ -291,64 +293,65 @@ exports.createTour = async (req, res) => {
 
 
 
-/*
-exports.getAllTours = async (req, res) => {
-    try {
 
-        //req.qury give us nicely formated object with the data
-        // console.log(req.query);
+// exports.getAllTours = async (req, res) => {
+//     try {
 
-        //GET ALL TOURS WITHOUT ANY QUERY
-        // const tours = await Tour.find();
+//         //req.qury give us nicely formated object with the data
+//         // console.log(req.query);
 
-        //GET ALL TOURS BUT WITH FILTERING THROUGH PASSING Queries
-        // const tours = await Tour.find({
-        //     duration: 5,
-        //     difficulty: 'easy'
-        // })
+//         //GET ALL TOURS WITHOUT ANY QUERY
+//         // const tours = await Tour.find();
 
-        //Another way[dynamic depends on your url]
-        // const tours = await Tour.find(req.query)
+//         //GET ALL TOURS BUT WITH FILTERING THROUGH PASSING Queries
+//         // const tours = await Tour.find({
+//         //     duration: 5,
+//         //     difficulty: 'easy'
+//         // })
 
-        //Another way
-        //special mongoose methods
-        // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
+//         //Another way[dynamic depends on your url]
+//         // const tours = await Tour.find(req.query)
 
-        ///////////////////////////////////
-        //issues with these all are what if we have a url which have other parameters then what to do
-        //so we need to exclude this fields from out accessing query methods lets see how
+//         //Another way
+//         //special mongoose methods
+//         // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
 
-
-        //Handle it in better way
-        //step1.make a copy of request url query and remove them
-        const queryObj = { ...req.query }
-        //array of wanting to exclude fields
-        const excludedFields = ['page', 'sort', 'limit', 'fields']
-        //Foreach change original array
-        excludedFields.forEach(el => delete queryObj[el]);
-
-        console.log(req.query, queryObj)
+//         ///////////////////////////////////
+//         //issues with these all are what if we have a url which have other parameters then what to do
+//         //so we need to exclude this fields from out accessing query methods lets see how
 
 
-        //thoda filter out krdiya to ab apan queryObj use krenge
-        const tours = await Tour.find(queryObj)
+//         //Handle it in better way
+//         //step1.make a copy of request url query and remove them
+//         const queryObj = { ...req.query }
+//         //array of wanting to exclude fields
+//         const excludedFields = ['page', 'sort', 'limit', 'fields']
+//         //Foreach change original array
+//         excludedFields.forEach(el => delete queryObj[el]);
 
-        res.status(200).json({
-            status: 'success',
-            results: tours.length,
-            data: {
-                tours
-            }
-        });
-    } catch (err) {
-        res.send(404).json({
-            status: 'Failed',
-            message: err
-        })
-    }
-};
+//         console.log(req.query, queryObj)
 
-*/
+
+//         //thoda filter out krdiya to ab apan queryObj use krenge
+//         const tours = await Tour.find(queryObj)
+
+//         res.status(200).json({
+//             status: 'success',
+//             results: tours.length,
+//             data: {
+//                 tours
+//             }
+//         });
+//     } catch (err) {
+//         res.send(404).json({
+//             status: 'Failed',
+//             message: err
+//         })
+//     }
+// };
+
+
+
 exports.getAllTours = async (req, res) => {
     try {
 
@@ -385,6 +388,273 @@ exports.getAllTours = async (req, res) => {
     }
 };
 
+
+exports.getTour = async (req, res) => {
+    try {
+        const tour = await Tour.findById(req.params.id);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                tour
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+}
+
+
+
+exports.updateTour = async (req, res) => {
+    try {
+        const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        res.status(200).json({
+            status: 'success',
+            data: {
+                // tour: tour, Thanks to ES6
+                tour,
+                runValidators: true
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
+};
+
+
+
+exports.deleteTour = async (req, res) => {
+    try {
+        await Tour.findByIdAndDelete(req.params.id)
+        res.status(204).json({
+            status: 'success',
+            data: null
+        })
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
+};
+
+////////////////////////////////////////////////////
+
+//MORE COMPLEX QUERY
+//handling lte,gte,gt,lt
+
+const fs = require('fs')
+const Tour = require('../models/tourModel');
+
+
+exports.createTour = async (req, res) => {
+    try {
+        const newTour = await Tour.create(req.body);
+
+        res.status(201).json({
+            status: 'success',
+
+            data: {
+                tour: newTour
+            }
+        })
+
+    } catch (err) {
+        res.status(400).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+}
+
+
+
+
+exports.getAllTours = async (req, res) => {
+    try {
+        console.log(req.query)
+
+        // 1) Build Query
+        //Filtering
+        const queryObj = { ...req.query }
+        const excludedFields = ['page', 'sort', 'limit', 'fields']
+        excludedFields.forEach(el => delete queryObj[el]);
+
+
+        // 2) Advanced Filtering
+        let queryStr = JSON.stringify(queryObj);
+        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`)
+        console.log(JSON.parse(queryStr))
+
+
+        //COMPLEX QUERIES WE PERFORMING NOW
+        //in mongoDB native
+        //{difficulty:'easy',duration:{ $gte : 5}}
+        //what req.query gave us after query for same is
+        //{ difficulty: "'easy'", duration: { gte: '5' } }
+        //gte,gt,lte,lt
+
+        //bhai apan ne req.query use ki phlee
+        //fir thoda execution krke queryObj banaya jo exclude krdeta h kuch chizo ko taki error na aye
+        //ab apan se or queries jo ki less than or greater than wali h unko bhi handle kiyaa hai
+        //to pass krengee queryStr
+
+        const query = Tour.find(JSON.parse(queryStr));
+
+
+
+        //EXECUTE QUERY
+        const tours = await query;
+        //SEND RESPONSE
+        res.status(200).json({
+            status: 'success',
+            results: tours.length,
+            data: {
+                tours
+            }
+        });
+    } catch (err) {
+        res.send(404).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+};
+
+exports.getTour = async (req, res) => {
+    try {
+        const tour = await Tour.findById(req.params.id);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                tour
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+}
+
+
+
+exports.updateTour = async (req, res) => {
+    try {
+        const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        res.status(200).json({
+            status: 'success',
+            data: {
+                // tour: tour, Thanks to ES6
+                tour,
+                runValidators: true
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
+};
+
+
+
+exports.deleteTour = async (req, res) => {
+    try {
+        await Tour.findByIdAndDelete(req.params.id)
+        res.status(204).json({
+            status: 'success',
+            data: null
+        })
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
+};
+
+*/
+
+//////////////////////////////////////////////////////////////////////
+
+// SORTING
+
+const fs = require('fs')
+const Tour = require('../models/tourModel');
+
+
+exports.createTour = async (req, res) => {
+    try {
+        const newTour = await Tour.create(req.body);
+
+        res.status(201).json({
+            status: 'success',
+
+            data: {
+                tour: newTour
+            }
+        })
+
+    } catch (err) {
+        res.status(400).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+}
+
+
+exports.getAllTours = async (req, res) => {
+    try {
+
+        console.log(req.query)
+
+        // 1) FILTERING
+        const queryObj = { ...req.query }
+        const excludedFields = ['page', 'sort', 'limit', 'fields'];
+        excludedFields.forEach(el => delete queryObj[el]);
+
+
+
+        // 2) ADVANCE FILTERING
+        let queryStr = JSON.stringify(queryObj);
+        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`)
+        console.log(JSON.parse(queryStr))
+
+        let query = Tour.find(JSON.parse(queryStr));
+
+        // 3) SORTING
+        if (req.query.sort) {
+            query = query.sort(req.query.sort);
+        }
+
+
+        //EXECUTE QUERY
+        const tours = await query;
+        //SEND RESPONSE
+        res.status(200).json({
+            status: 'success',
+            results: tours.length,
+            data: {
+                tours
+            }
+        });
+    } catch (err) {
+        res.send(404).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+};
 
 exports.getTour = async (req, res) => {
     try {
