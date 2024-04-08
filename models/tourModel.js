@@ -32,7 +32,8 @@ const tourSchema = new mongoose.Schema(
         },
         price: {
             type: Number,
-            required: [true, 'A tour must have a price']
+            required: [true, 'A tour must have a price'],
+            unique: false
         },
         priceDiscount: Number,
         summary: {
@@ -56,7 +57,8 @@ const tourSchema = new mongoose.Schema(
         //createdAt basically a timestamp that is set by the time that the user gets a new tour
         createdAt: {
             type: Date,
-            default: Date.now()
+            default: Date.now(),
+            select: false
         },
         startDate: [Date]
     }
