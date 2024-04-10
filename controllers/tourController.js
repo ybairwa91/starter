@@ -1496,9 +1496,15 @@ exports.deleteTour = async (req, res) => {
 //PUT INTO ANOTHER FILE
 
 
+//AGGREGATION PIPELINE
+//a mongoDB library for data aggregation
+//idea is to process all collection process step by step in order to transform into get desired aggregate result
+
+
 const fs = require('fs')
-const APIFeatures = require('./../utils/APIFeatures')
+const APIFeatures = require('../utils/APIFeatures')
 const Tour = require('../models/tourModel');
+const { match } = require('assert');
 
 
 exports.aliasTopTour = (req, res, next) => {
@@ -1610,3 +1616,93 @@ exports.deleteTour = async (req, res) => {
         })
     }
 };
+
+//for aggregation pipeline
+exports.getTourStats = async (req, res) => {
+    try {
+        //aggregation pipeline is mongoDB feature but yes we can use through mongoose driver as well
+        //we can basically use multiple steps in aggregate and do have multiple stages
+        //and all the collection pass from these stages one by one
+        const stats = await Tour.aggregate([
+            //lets define some stages
+            //each stages define in object
+            {
+                $match: { ratingsAverage: { $gte: 4.5 } }
+            },
+            //group stage,basically helps to group documents together using accumulator
+            /*
+            {
+                $group: {
+                    //here we are doing operation by only one group which is whole collection document
+                    _id: null,
+                    //here we creating a new field called avgRating and then specify the operation on which field of document and the 
+                    //operations to be performed
+                    numRatings: { $sum: '$ratingsQuantity' },
+                    numTours: { $sum: 1 },
+                    avgRating: { $avg: '$ratingsAverage' },
+                    avgPrice: { $avg: '$price' },
+                    minPrice: { $min: '$price' },
+                    maxPrice: { $max: '$price' },
+                }
+            }
+            */
+            /*
+             {
+                 $group: {
+                     //here we are doing operation by only one group which is whole collection document
+                     _id: '$difficulty',
+                     //here we creating a new field called avgRating and then specify the operation on which field of document and the operations to be performed
+                     numRatings: { $sum: '$ratingsQuantity' },
+                     numTours: { $sum: 1 },
+                     avgRating: { $avg: '$ratingsAverage' },
+                     avgPrice: { $avg: '$price' },
+                     minPrice: { $min: '$price' },
+                     maxPrice: { $max: '$price' },
+                 }
+                 //iska mtlab h ki apan difficulty level ke hisab se grouping kar denge
+                 //matlab ki easy wale alag,medium wala alag or hard wale alag
+             }
+ 
+             */
+            {
+                $group: {
+
+                    // _id: '$ratingsAverage',
+                    _id: { $toUpper: '$difficulty' },
+
+                    numRatings: { $sum: '$ratingsQuantity' },
+                    numTours: { $sum: 1 },
+                    avgRating: { $avg: '$ratingsAverage' },
+                    avgPrice: { $avg: '$price' },
+                    minPrice: { $min: '$price' },
+                    maxPrice: { $max: '$price' },
+                }
+
+            },
+            //ye sort basically ye jo upar walee results h unko legaa or sort krdenaa in ascending order of avgPrice
+            {
+                $sort: { avgPrice: 1 }
+            },
+            //ab hum is pipeline se doc lengee or firse match karwangee and include karengee except EASY one
+            // {
+            //     $match: { _id: { $ne: 'EASY' } }
+            // }
+
+
+        ])
+        //is upar ke masle ka matlab yahi h ki match karo wo doc jinki rating 4.5  ya usse greater ho fir unko ek group me dalo bade se me
+        //or unke avg wageraa nikaal ke bhejdo client ko ...maze maze
+        res.status(200).json({
+            status: 'success',
+            data: {
+                stats
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+
+    }
+}
