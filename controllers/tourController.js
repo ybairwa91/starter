@@ -1114,7 +1114,7 @@ class APIFeatures {
 
     //yaha bhai req.query ko apan ne parameter leke object creation ke time pas karwayenge
     //matlab ki this.queryString=req.query jo url hai client ne manga h response ke liye
-    //or first argument query ka wo query object h 
+    //or first argument query ka wo query object h
     constructor(query, queryString) {
         this.query = query;
         this.queryString = queryString;
@@ -1501,6 +1501,7 @@ exports.deleteTour = async (req, res) => {
 //idea is to process all collection process step by step in order to transform into get desired aggregate result
 
 
+/*
 const fs = require('fs')
 const APIFeatures = require('../utils/APIFeatures')
 const Tour = require('../models/tourModel');
@@ -1630,59 +1631,59 @@ exports.getTourStats = async (req, res) => {
                 $match: { ratingsAverage: { $gte: 4.5 } }
             },
             //group stage,basically helps to group documents together using accumulator
-            /*
-            {
-                $group: {
-                    //here we are doing operation by only one group which is whole collection document
-                    _id: null,
-                    //here we creating a new field called avgRating and then specify the operation on which field of document and the 
-                    //operations to be performed
-                    numRatings: { $sum: '$ratingsQuantity' },
-                    numTours: { $sum: 1 },
-                    avgRating: { $avg: '$ratingsAverage' },
-                    avgPrice: { $avg: '$price' },
-                    minPrice: { $min: '$price' },
-                    maxPrice: { $max: '$price' },
-                }
-            }
-            */
-            /*
-             {
-                 $group: {
-                     //here we are doing operation by only one group which is whole collection document
-                     _id: '$difficulty',
-                     //here we creating a new field called avgRating and then specify the operation on which field of document and the operations to be performed
-                     numRatings: { $sum: '$ratingsQuantity' },
-                     numTours: { $sum: 1 },
-                     avgRating: { $avg: '$ratingsAverage' },
-                     avgPrice: { $avg: '$price' },
-                     minPrice: { $min: '$price' },
-                     maxPrice: { $max: '$price' },
-                 }
-                 //iska mtlab h ki apan difficulty level ke hisab se grouping kar denge
-                 //matlab ki easy wale alag,medium wala alag or hard wale alag
-             }
+            
+//             {
+//                 $group: {
+//                     //here we are doing operation by only one group which is whole collection document
+//                     _id: null,
+//                     //here we creating a new field called avgRating and then specify the operation on which field of document and the 
+//                     //operations to be performed
+//                     numRatings: { $sum: '$ratingsQuantity' },
+//                     numTours: { $sum: 1 },
+//                     avgRating: { $avg: '$ratingsAverage' },
+//                     avgPrice: { $avg: '$price' },
+//                     minPrice: { $min: '$price' },
+//                     maxPrice: { $max: '$price' },
+//                 }
+//             }
+            
+
+//  {
+//      $group: {
+//          //here we are doing operation by only one group which is whole collection document
+//          _id: '$difficulty',
+//          //here we creating a new field called avgRating and then specify the operation on which field of document and the operations to be performed
+//          numRatings: { $sum: '$ratingsQuantity' },
+//          numTours: { $sum: 1 },
+//          avgRating: { $avg: '$ratingsAverage' },
+//          avgPrice: { $avg: '$price' },
+//          minPrice: { $min: '$price' },
+//          maxPrice: { $max: '$price' },
+//      }
+//      //iska mtlab h ki apan difficulty level ke hisab se grouping kar denge
+//      //matlab ki easy wale alag,medium wala alag or hard wale alag
+//  }
  
-             */
-            {
-                $group: {
 
-                    // _id: '$ratingsAverage',
-                    _id: { $toUpper: '$difficulty' },
+{
+    $group: {
 
-                    numRatings: { $sum: '$ratingsQuantity' },
-                    numTours: { $sum: 1 },
-                    avgRating: { $avg: '$ratingsAverage' },
-                    avgPrice: { $avg: '$price' },
-                    minPrice: { $min: '$price' },
-                    maxPrice: { $max: '$price' },
-                }
+        // _id: '$ratingsAverage',
+        _id: { $toUpper: '$difficulty' },
 
-            },
-            //ye sort basically ye jo upar walee results h unko legaa or sort krdenaa in ascending order of avgPrice
-            {
-                $sort: { avgPrice: 1 }
-            },
+        numRatings: { $sum: '$ratingsQuantity' },
+        numTours: { $sum: 1 },
+        avgRating: { $avg: '$ratingsAverage' },
+        avgPrice: { $avg: '$price' },
+        minPrice: { $min: '$price' },
+        maxPrice: { $max: '$price' },
+    }
+
+},
+//ye sort basically ye jo upar walee results h unko legaa or sort krdenaa in ascending order of avgPrice
+{
+    $sort: { avgPrice: 1 }
+},
             //ab hum is pipeline se doc lengee or firse match karwangee and include karengee except EASY one
             // {
             //     $match: { _id: { $ne: 'EASY' } }
@@ -1690,8 +1691,158 @@ exports.getTourStats = async (req, res) => {
 
 
         ])
-        //is upar ke masle ka matlab yahi h ki match karo wo doc jinki rating 4.5  ya usse greater ho fir unko ek group me dalo bade se me
-        //or unke avg wageraa nikaal ke bhejdo client ko ...maze maze
+//is upar ke masle ka matlab yahi h ki match karo wo doc jinki rating 4.5  ya usse greater ho fir unko ek group me dalo bade se me
+//or unke avg wageraa nikaal ke bhejdo client ko ...maze maze
+res.status(200).json({
+    status: 'success',
+    data: {
+        stats
+    }
+});
+    } catch (err) {
+    res.status(404).json({
+        status: 'fail',
+        message: err
+    })
+
+}
+}
+
+*/
+
+/////////////////////////////////////////
+
+
+//AGGREGATION PIPELINE:UNWINDING AND PROJECTION
+
+
+const APIFeatures = require('../utils/APIFeatures')
+const Tour = require('../models/tourModel');
+
+exports.aliasTopTour = (req, res, next) => {
+    req.query.limit = '5';
+    req.query.sort = '-ratingsAverage,price';
+    req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+    next();
+}
+
+exports.createTour = async (req, res) => {
+    try {
+        const newTour = await Tour.create(req.body);
+
+        res.status(201).json({
+            status: 'success',
+            data: {
+                tour: newTour
+            }
+        })
+
+    } catch (err) {
+        res.status(400).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+}
+
+exports.getAllTours = async (req, res) => {
+    try {
+        const features =
+            new APIFeatures(Tour.find(), req.query)
+                .filter()
+                .sort()
+                .limitFields()
+                .paginate()
+
+        const tours = await features.query;
+
+        res.status(200).json({
+            status: 'success',
+            results: tours.length,
+            data: {
+                tours
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+};
+
+exports.getTour = async (req, res) => {
+    try {
+        const tour = await Tour.findById(req.params.id);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                tour
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'Failed',
+            message: err
+        })
+    }
+}
+
+exports.updateTour = async (req, res) => {
+    try {
+        const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        res.status(200).json({
+            status: 'success',
+            data: {
+                // tour: tour, Thanks to ES6
+                tour,
+                runValidators: true
+            }
+        });
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
+};
+
+exports.deleteTour = async (req, res) => {
+    try {
+        await Tour.findByIdAndDelete(req.params.id)
+        res.status(204).json({
+            status: 'success',
+            data: null
+        })
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
+    }
+};
+
+exports.getTourStats = async (req, res) => {
+    try {
+        const stats = await Tour.aggregate([
+            {
+                $match: { ratingsAverage: { $gte: 4.5 } }
+            },
+            {
+                $group: {
+                    _id: { $toUpper: '$difficulty' },
+                    numTours: { $sum: 1 },
+                    numRatings: { $sum: '$ratingsQuantity' },
+                    avgRating: { $avg: '$ratingsAverage' },
+                    avgPrice: { $avg: '$price' },
+                    minPrice: { $min: "$price" },
+                    maxPrice: { $max: "$price" }
+                }
+            },
+            {
+                $sort: { avgPrice: 1 }
+            }
+        ])
         res.status(200).json({
             status: 'success',
             data: {
@@ -1704,5 +1855,65 @@ exports.getTourStats = async (req, res) => {
             message: err
         })
 
+    }
+}
+
+exports.getMonthlyPlan = async (req, res) => {
+    try {
+        const year = req.params.year * 1; //2021
+
+
+        const plan = await Tour.aggregate([
+            //ye unwind startDates me 3 array hai sab array ko alag kr krke new doc banadegaa
+
+            {
+                $unwind: '$startDates'
+            },
+            //ye match kareagee ki startDates me 2021 wale hi doc h na bus
+            {
+                $match: {
+                    startDates:
+                    {
+                        $gte: new Date(`${year}-01-01`),
+                        $lte: new Date(`${year}-12-31`),
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $month: '$startDates' },
+                    numTourStarts: { $sum: 1 },
+                    tours: { $push: '$name' }
+                },
+            },
+            {
+                $addFields: { months: '$_id' }
+            },
+            {
+                $project: {
+                    _id: 0
+                }
+            },
+            {
+                $sort: { numTourStarts: -1 }
+            },
+            {
+                $limit: 12
+            }
+
+        ])
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                plan
+            }
+        });
+
+    } catch (err) {
+        res.status(404).json({
+            status: 'fail',
+            message: err
+        })
     }
 }
