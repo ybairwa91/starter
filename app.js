@@ -29,6 +29,8 @@ Common values for NODE_ENV:
 development: Used during local development.
 production: Used in a live production environment.
 */
+
+
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
@@ -36,6 +38,7 @@ if (process.env.NODE_ENV === 'development') {
 
 
 //basically parse incoming request json file and makes accessible to req.body object
+//uske baad req.body work karegee bhai
 app.use(express.json());
 //see in public folder there are so many static files and we fetch them through nodejs but to work it smoothly we use static middleware
 app.use(express.static(`${__dirname}/public`))
@@ -57,7 +60,8 @@ app.use((req, res, next) => {
 /*
 app.use() is a method that adds middleware functions to the application’s request-response cycle.
 Middleware functions can process requests, modify the request or response objects, or perform other tasks.
-first param---
+parameter of app.use()
+first parameter
 '/api/v1/tours':
 This is the path or route where the middleware will be applied.
 When a client sends an HTTP request to this path (e.g., GET /api/v1/tours), the middleware will be executed.

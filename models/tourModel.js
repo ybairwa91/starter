@@ -238,16 +238,33 @@ tourSchema.pre('save', function (next) {
 //QUERY MIDDLWARE
 //bhai phle argument hi find h to obviously query document h ye
 
-tourSchema.pre('find', function (next) {
+//ye execute nahi hai agar apan ek tour find karne baithengee to
+tourSchema.pre(/^find/, function (next) {
     //concept h ye ki apan ek or field banate h secretTour ki and
     //query ke time inko exclude kardengee ..maze ..maze
-    this.find({ secretTour: { $ne: true } })
+    this.find({ secretTour: { $ne: true } });
+    this.start = Date.now()
     next();
-
+})
+// tourSchema.pre('findOne', function (next) {
+//     //concept h ye ki apan ek or field banate h secretTour ki and
+//     //query ke time inko exclude kardengee ..maze ..maze
+//     this.find({ secretTour: { $ne: true } })
+//     next();
+// })
+//run after query executes
+tourSchema.post(/^find/, function (docs, next) {
+    console.log(`Query took ${Date.now() - this.start} miliseconds`);
+    console.log(docs);
+    next();
 })
 
 
 
+//ye tour model hai jo ki import karliyaa apnee controller ne
+//controller handle karta hai application logic
+//matlab core tech part
+//means ki request and response handle karnaa controller ke hath me h boss.
 const Tour = mongoose.model('Tour', tourSchema)
 
 module.exports = Tour;

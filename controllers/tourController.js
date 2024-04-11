@@ -1,6 +1,6 @@
 
 /*
-//Before Mvc architcure and mongoDB
+//Before Mvc architecture and mongoDB
 const fs = require('fs');
 
 const tours = JSON.parse(
@@ -100,17 +100,22 @@ exports.deleteTour = (req, res) => {
 //////////////////////////////
 //lets use mongoDb
 const fs = require('fs')
+
 //ye basically model import kiya hai or saying kind a Tour class ab iske basis pe document create honge
 //jis naam ka model create karengee usi naam ka collection create ho jayega apne database me
 //yaad rakhnaa mongoDB store collection name in lowercase so Tour jo yaha pe collection name h tour se save hogaa
+
 const Tour = require('../models/tourModel');
-
-
-/
+//ye Tour model hai or model se hi apan bohot sareee doc create krngee dekhna
+//by using multiple queries
 
 //How to create new Document in Database
 
 exports.createTour = async (req, res) => {
+
+    //create ke liyee method in mongoDB
+    //collectionName.insertOne()
+    //collectionName.insertMany()
 
     //Create a new tour logic here,with the help of data come from requested body
     //1st.method) first created a doc from tour models and then used save method
@@ -123,6 +128,8 @@ exports.createTour = async (req, res) => {
     //also return promise
 
     // Tour.create().then()
+
+    //const newTour=Tour.create(req.body).then(data)
 
     //better is to use async await now
     //yaad rakhnaa ye jo bhi saree Methods h mongoose me on model all return promises and they provide queries in promise
@@ -1861,7 +1868,6 @@ exports.getTourStats = async (req, res) => {
 exports.getMonthlyPlan = async (req, res) => {
     try {
         const year = req.params.year * 1; //2021
-
 
         const plan = await Tour.aggregate([
             //ye unwind startDates me 3 array hai sab array ko alag kr krke new doc banadegaa

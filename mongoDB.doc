@@ -1,0 +1,34 @@
++++++++++++++++++++++mongoDB+++++++++++++++++++++++++++++++++++++++++++++
+
+1.show dbs---to show all database available 
+test> show dbs
+admin           40.00 KiB
+blog           192.00 KiB
+config          60.00 KiB
+forinsert       72.00 KiB
+local           96.00 KiB
+natours-test    72.00 KiB
+natours-test2   40.00 KiB
+naturr          16.00 KiB
+newdatabase     72.00 KiB
+newdb           40.00 KiB
+test            40.00 KiB
+
+2.use databaseName--for switch to the databse
+test> use test
+already on db test
+
+3.Show collections--for checking all collection available on the database
+test> show collection
+MongoshInvalidInputError: [COMMON-10001] 'collection' is not a valid argument for "show".
+//its plural[:))]
+test> show collections
+
+4.insertOne({})--Create a new document in collection name test
+test> db.posts.insertOne({name:'Yogesh'})
+{
+  acknowledged: true,
+  insertedId: ObjectId('6617adc2acbb5885f0430293')
+}
+
+5.
