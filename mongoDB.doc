@@ -25,10 +25,43 @@ MongoshInvalidInputError: [COMMON-10001] 'collection' is not a valid argument fo
 test> show collections
 
 4.insertOne({})--Create a new document in collection name test
+[db.collectionName.method to perform]
+db-usual syntax
+post-is collectionName
+insertOne is method to perfome
 test> db.posts.insertOne({name:'Yogesh'})
 {
   acknowledged: true,
   insertedId: ObjectId('6617adc2acbb5885f0430293')
 }
 
-5.
+5.insertedMany([{},{},{}])-to create many document at the same time
+test> db.posts.insertMany([{name:'jenny'},{name:'preet'},{name:"bruce"}])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6617af06acbb5885f0430294'),
+    '1': ObjectId('6617af06acbb5885f0430295'),
+    '2': ObjectId('6617af06acbb5885f0430296')
+  }
+}
+
+
+6.find()--reading all document in the current collection
+test> db.posts.find()
+[
+  {
+    '0': 'p',
+    '1': 'o',
+    '2': 's',
+    '3': 't',
+    '4': 's',
+    _id: ObjectId('65f025817de35c3a5cc03212')
+  },
+  { _id: ObjectId('6617ac07acbb5885f0430292'), name: 'Yogesh' },
+  { _id: ObjectId('6617adc2acbb5885f0430293'), name: 'Yogesh' },
+  { _id: ObjectId('6617af06acbb5885f0430294'), name: 'jenny' },
+  { _id: ObjectId('6617af06acbb5885f0430295'), name: 'preet' },
+  { _id: ObjectId('6617af06acbb5885f0430296'), name: 'bruce' }
+]
+test>

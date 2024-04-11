@@ -1,4 +1,4 @@
-
+//Before mvc
 /*
 //Before Mvc architecture and mongoDB
 const fs = require('fs');
@@ -95,6 +95,7 @@ exports.deleteTour = (req, res) => {
 };
 */
 
+//mongoose basics methods
 /*
 
 //////////////////////////////
@@ -180,6 +181,8 @@ exports.getAllTours = async (req, res) => {
     //Tour model hai jo tourSchema se banaya hai
     //check compass or atlas waha pe jo data h tour collection it will be fetched here bro
     //or async banado function ko kyuki bhai promise dega ye Tour.find() to
+    //mongodb me kaise hota thaa using find() method
+
     try {
         //in mongodb=db.tour.find({})//using projection
         const tours = await Tour.find();
@@ -233,11 +236,13 @@ exports.updateTour = async (req, res) => {
     try {
         //update krna hai phle ye dekhnaa hoga ki konsa element h uski id ke through query krenge bro
         //fir update krdengee
-        //phla argument for query,second argument for the body should be there and third argu also there to use some options
+        //phla argument for query,second argument for the body should be there and third argu also
+        // there to use some options
         //basically new:true means return the new one jo hi chahiye hamee
         //these query basically update the field after comparing and not completely replace it,
         //so put request doesnot work for this query
         //well patch is more useful rather than put in real life.
+
         const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, { new: true })
 
         res.status(200).json({
@@ -279,6 +284,7 @@ exports.deleteTour = async (req, res) => {
 //////////////////////////////////////////////////
 
 
+//querying
 /*
 ///QUERY STRING GAME
 
@@ -312,7 +318,7 @@ exports.createTour = async (req, res) => {
 // exports.getAllTours = async (req, res) => {
 //     try {
 
-//         //req.qury give us nicely formated object with the data
+//         //req.query give us nicely formated object with the data
 //         // console.log(req.query);
 
 //         //GET ALL TOURS WITHOUT ANY QUERY
@@ -656,6 +662,7 @@ exports.getAllTours = async (req, res) => {
         // [http://127.0.0.1:3000/api/v1/tours?sort=-price]
         // [http://127.0.0.1:3000/api/v1/tours?sort=ratingsAverage,price]
         //response
+        
         //its simple as u can see
 
         //Only single field sorting
@@ -1754,6 +1761,7 @@ exports.createTour = async (req, res) => {
 
 exports.getAllTours = async (req, res) => {
     try {
+        console.log(req.query);
         const features =
             new APIFeatures(Tour.find(), req.query)
                 .filter()

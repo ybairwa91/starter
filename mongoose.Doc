@@ -1,0 +1,130 @@
+1.create-Tour.create(req.body)
+2.find all documents-Tour.find();
+3.findById for specific document-Tour.findById(req.params.id);
+4.update-Tour.findByIdAndUpdate(req.params.id, req.body, { new: true })
+5.delete-Tour.findByIdAndDelete(req.params.id)
+
+//METHODS FOR QUERYING
+6.querying-Tour.find({duration: 5,difficulty: 'easy' })//passing query objects
+Note-there is query object in express lets destruct it
+const {query}=require('express')
+now req.query will give us an array from url and u can put into find method
+http://127.0.0.1:3000/api/v1/tours?difficulty=easy&duration=5
+this is the client request for querying
+{duration: 5,difficulty: 'easy' } 
+6.querying-Tour.find(req.query)
+6.querying-const tours = Tour.find().where('duration').equals(5).where('difficulty').equals('easy')
+
+NOTE-exclude 'page', 'sort', 'limit', 'fields' from querying
+
+operations like gte,lte,lt,lte
+client side url is
+http://127.0.0.1:3000/api/v1/tours?difficulty=easy&duration[lte]=5
+
+req.query gives this object
+{ difficulty: 'easy', duration: { lte: '5' } }
+
+to query we need that dollar sign before operator
+{ difficulty: 'easy', duration: { $lte: '5' } }
+//used regular expression
+Tour.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`)
+
+
+////////////SORTING//////////////
+
+[http://127.0.0.1:3000/api/v1/tours?sort=price] //ascending
+[http://127.0.0.1:3000/api/v1/tours?sort=-price] //descending
+[http://127.0.0.1:3000/api/v1/tours?sort=ratingsAverage,price] //multiple
+
+sort by price
+7.sorting-Tour.sort('price')//HARDCODED
+7.sorting-Tour.sort(req.query.sort)
+
+More than one field
+7.sorting-Tour.sort('price ratingAVERAGE')//Hardcoded
+basically url from client side looks like
+[http://127.0.0.1:3000/api/v1/tours?sort=price]
+req.query gives us
+{ sort: '-price,ratingAverage' }
+and we want not ,lets manipulate it
+req.query.sort.split(',').join(' ')
+so 
+7.sorting-Tour.sort(req.query.sort.split(',').join(' '))
+
+//////////////////////////////////////////////////////////////
+lets revise all concepts
+
+FILTERING
+        const queryObj = { ...req.query }
+        const excludedFields = ['page', 'sort', 'limit', 'fields'];
+        excludedFields.forEach(el => delete queryObj[el]);
+ ADVANCE FILTERING
+        let queryStr = JSON.stringify(queryObj);
+        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`)
+        console.log(JSON.parse(queryStr))
+        let query = Tour.find(JSON.parse(queryStr));
+SORTING
+if (req.query.sort) {
+            const sortBy = req.query.sort.split(',').join(' ')
+            console.log(sortBy)
+            query = query.sort(sortBy)
+        } else {
+            query = query.sort('-createdAt')
+        }
+
+
+///////////////LIMITING FIELD//////////////////////////////////
+means projection,showing only field that are required
+how urls looks a like
+
+this is projection means providing doc by filtering and pro
+[http://127.0.0.1:3000/api/v1/tours?fields=name,duration,price]
+[http://127.0.0.1:3000/api/v1/tours?fields=name,-duration,price]
+
+//what req.query gives us
+{ fields: 'name,duration,price' }
+
+//what we want
+{ fields: 'name duration price' }
+
+//how to do that
+req.query.fields.sort(',').join(' ')
+
+//so
+8.field-Tour.select(req.query.fields.sort(',').join(' '))
+
+
+//////////////////PAGINATION///////////////////////////
+//means that how many fields u want to show on the page
+
+
+//client url
+[http://127.0.0.1:3000/api/v1/tours?page=2&limit=10]
+
+//req.query
+{ page:2, limit:10 }
+
+//response
+//it means skip first since 10 is limit so first page has 10 fields
+//and we want page 2 field so yes
+9.Pagination--Tour.skip(10).limit(10)  [hardcoded]
+
+//using req.query
+const page=req.query.page*1
+const limit=req.query.limit*1
+
+const skip=(page-1)*limit
+
+9.Pagination-Tour.skip(skip).limit(limit)
+
+
+///////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
