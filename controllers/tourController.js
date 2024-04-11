@@ -1761,7 +1761,7 @@ exports.createTour = async (req, res) => {
 
 exports.getAllTours = async (req, res) => {
     try {
-        console.log(req.query);
+
         const features =
             new APIFeatures(Tour.find(), req.query)
                 .filter()
@@ -1805,13 +1805,14 @@ exports.getTour = async (req, res) => {
 
 exports.updateTour = async (req, res) => {
     try {
-        const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, { new: true })
+        const tour = await Tour.findOneAndUpdate(req.params.id, req.body, { new: true }, { runValidators: true })
         res.status(200).json({
             status: 'success',
             data: {
                 // tour: tour, Thanks to ES6
-                tour,
-                runValidators: true
+                tour
+                //ye isliye ki data validation should be true while performing updateTour as well
+                //bhai validation work tabhi karega jab findOneAndUpdate use kregaa and uske parameter me {runValidatours:true} kregea
             }
         });
     } catch (err) {
@@ -1838,10 +1839,11 @@ exports.deleteTour = async (req, res) => {
 };
 
 exports.getTourStats = async (req, res) => {
+
     try {
         const stats = await Tour.aggregate([
             {
-                $match: { ratingsAverage: { $gte: 4.5 } }
+                $match: { ratingsAverage: { $gte: 4.5 } },
             },
             {
                 $group: {
