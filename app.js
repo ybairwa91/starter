@@ -1,14 +1,15 @@
+/* eslint-disable no-unused-vars */
 //Packages to install
-const express = require('express');
-const morgan = require('morgan');
-const tourRouter = require('./routes/tourRoutes');
-const userRouter = require('./routes/userRoutes');
+// const express = require('express');
+// const morgan = require('morgan');
+// const tourRouter = require('./routes/tourRoutes');
+// const userRouter = require('./routes/userRoutes');
 
 // When you call express(), it returns an instance of an Express application.
 //create an instance of express js
 // You’ll see this app variable used to set up routes, middleware, and listen for incoming requests.
-// app represents your entire Express application, and you’ll use it to define your routes and handle incoming requests! 
-const app = express();
+// app represents your entire Express application, and you’ll use it to define your routes and handle incoming requests!
+// const app = express();
 
 //morgan--basically logs the request by user[like url,statusCode,response time.....]
 //basically a logging middleware for http request
@@ -95,6 +96,12 @@ module.exports = app;
 
 ////////////////////////////////////////////////////////
 
+const express = require('express');
+const morgan = require('morgan');
+const tourRouter = require('./routes/tourRoutes');
+const userRouter = require('./routes/userRoutes');
+
+const app = express();
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -102,20 +109,53 @@ if (process.env.NODE_ENV === 'development') {
 
 app.use(express.json());
 
-app.use(express.static(`${__dirname}/public`))
-
-app.use((req, res, next) => {
-  console.log('Hello from the middleware🔅');
-  next();
-})
+app.use(express.static(`${__dirname}/public`));
 
 app.use((req, res, next) => {
   req.requestTime = new Date().toISOString();
   next();
-})
-
+});
 
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
+
+//this is the place where defining a middleware and if is called means not handled by rest of the routers
+//so yes u can define a router here which handle the unknown request from client which basically cant served by the server
+//* is for rest of the paths which are not specified
+
+// app.all('*',(req,res,next)=>{
+//   res.status(404).json({
+//     status:'fail',
+//     message:`cant find ${req.originalUrl} on the server!`
+//   })
+
+// })
+
+//LETS CREATE AN ERROR
+
+app.all('*', (req, res, next) => {
+  const err = new Error(`Cant find ${req.originalUrl} on this server!`);
+  err.status = 'fail';
+  err.statusCode = 404;
+  next();
+  });
+
+
+
+
+//bro if any middleware has 4 parameter expressjs automatically understand it as error handling middleware
+
+app.use((err, req, res, next) => {
+  //lets read statuscode dynamically
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
+
+  next()
+});
 
 module.exports = app;
