@@ -1,4 +1,9 @@
 +++++++++++++++++++++mongoDB+++++++++++++++++++++++++++++++++++++++++++++
+a database management system
+document based
+NoSQL dbms
+
+
 
 1.show dbs---to show all database available 
 test> show dbs

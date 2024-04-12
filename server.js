@@ -1,4 +1,4 @@
-/*
+    /*
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const app = require('./app');
@@ -342,6 +342,7 @@ app.listen(port, () => {
 ///////////////////////////////////
 
 //AFTER MVC ARCHITECTURE
+/*
 
 const mongoose = require('mongoose');
 
@@ -367,6 +368,36 @@ mongoose.connect(DB, {
 )
 
 //baki ki chize tourModel me daldi models folder banake kyuki mvc ne bola hai
+
+const port = process.env.port || 3000;
+
+app.listen(port, () => {
+    console.log(`this is running on port ${port}`);
+});
+
+*/
+//////////////////////////////////////////////////////////
+
+const mongoose = require('mongoose');
+
+const dotenv = require('dotenv');
+
+dotenv.config({ path: './config.env' });
+const app = require('./app');
+
+
+
+const DB = process.env.DATABASE.replace('<PASSWORD>',
+    process.env.DATABASE_PASSWORD);
+
+mongoose.connect(DB, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useFindAndModify: false,
+    useUnifiedTopology: true
+}).then(() => console.log('DB connection successful')
+)
+
 
 const port = process.env.port || 3000;
 
