@@ -414,7 +414,15 @@ module.exports = Tour;
 //or codes,this is a golden rule for a backend developer to never accept the code or data as it is,we always sanitize
 //lets do data validation on this model,and mongoose have a bunch of tool to perform the same
 
+//inbuilt avaiable from mongoose
+//custom validator-means we develop for our own purpose
+//some libraries available on npm to make our life more easier
+const validator = require('validator')
+//basically a function that return either true or false
+//if true no error
+//if false it gives error
 
+//lets create a custom validator that check whether priceDiscount is lesser than price itself
 
 
 const mongoose = require('mongoose');
@@ -430,8 +438,10 @@ const tourSchema = new mongoose.Schema(
             trim: true,
             //length
             maxLength: [40, 'A tour name must have maximum 40 characters or less than 40 characters'],
-            minLength: [10, 'A tour name must have minimum 10 characters or equal to 10']
-
+            minLength: [10, 'A tour name must have minimum 10 characters or equal to 10'],
+            //validator lib
+            //just for learning don't use in programming
+            // validate: [validator.isAlpha, 'Tour Name must contain only character']
         },
         slug: {
             type: String
@@ -471,7 +481,19 @@ const tourSchema = new mongoose.Schema(
             required: [true, 'A tour must have a price'],
             unique: false
         },
-        priceDiscount: Number,
+        // priceDiscount: Number,
+        priceDiscount:
+        {
+            type: Number,
+            //this function not going to work for update request since this request point to current doc when we are creating new document
+            //and used while creating document and not for while updating one
+            validate: {
+                validator: function (val) {
+                    return val < this.price;
+                },
+                "message": "Discount price ({VALUE}) should below the regular price"
+            }
+        },
         summary: {
             type: String,
             trim: true,
