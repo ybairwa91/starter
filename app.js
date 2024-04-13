@@ -96,6 +96,7 @@ module.exports = app;
 
 ////////////////////////////////////////////////////////
 
+/*
 const express = require('express');
 const morgan = require('morgan');
 const tourRouter = require('./routes/tourRoutes');
@@ -132,24 +133,89 @@ app.use('/api/v1/users', userRouter);
 // })
 
 //LETS CREATE AN ERROR
-
+//this route handle all unhandled route
 app.all('*', (req, res, next) => {
+
   const err = new Error(`Cant find ${req.originalUrl} on this server!`);
   err.status = 'fail';
   err.statusCode = 404;
-  //next in a special way
+  //next() in a special way
   //passing parameter in next means definitely there is an error
+  //if u pass err in next then it will skip all middlewares in stack and just redirect to global error handling middleware and execute it
   next(err);
   });
-
-
 
 
 //bro if any middleware has 4 parameter express automatically understand it as error handling middleware
 //we call it error first function why coz of first argument is error itself
 
 app.use((err, req, res, next) => {
+  console.log(err.stack)
   //lets read statuscode dynamically
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error'; 
+  res.status(err.statusCode).json({
+    status: err.status,
+    message: err.message,
+  });
+
+});
+  
+
+module.exports = app;
+
+
+*/
+
+////////////////////////////////////////////////////
+
+
+
+const express = require('express');
+const morgan = require('morgan');
+const tourRouter = require('./routes/tourRoutes');
+const userRouter = require('./routes/userRoutes');
+//Import AppError
+const AppError=require('./utils/appError')
+
+const app = express();
+
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
+
+app.use(express.json());
+
+app.use(express.static(`${__dirname}/public`));
+
+app.use((req, res, next) => {
+  req.requestTime = new Date().toISOString();
+  next();
+});
+
+app.use('/api/v1/tours', tourRouter);
+app.use('/api/v1/users', userRouter);
+
+app.all('*', (req, res, next) => {
+
+  // const err = new Error(`Cant find ${req.originalUrl} on this server!`);
+  // err.status = 'fail';
+  // err.statusCode = 404;
+  
+  // next(err);
+
+
+  next(new AppError(`Cant find ${req.originalUrl} on this server!`,404));
+
+  });
+
+
+//is handler or middleware ko bhi export krde kyaa
+//handlers are part of controller in MVC architecture
+//so lets create a error controller
+app.use((err, req, res, next) => {
+  console.log(err.stack)
+
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error'; 
   res.status(err.statusCode).json({
