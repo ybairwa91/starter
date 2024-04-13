@@ -1936,15 +1936,20 @@ exports.getMonthlyPlan = async (req, res) => {
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // TOPIC-ERROR HANDLING
-  //till now we are using try and catch to error handling while sending reponse to client
-  //when this is more of a general way to handle errors in async and await method but in specific expressjs
-  //we need to be more and more focus 
-  //duplication is one such issue here
-  //since we created our global handling middleware we can even export our error to it 
+/*
 
+//till now we are using try and catch to error handling while sending reponse to client
+//when this is more of a general way to handle errors in async and await method but in specific expressjs
+//we need to be more and more focus
+//duplication is one such issue here
+//take help of function here
+//we handled try and catch of createTour here in this exercise how check it by urself
 
 const APIFeatures = require('../utils/APIFeatures');
 const Tour = require('../models/tourModel');
+//Import catchAsync
+const catchAsync=require('../utils/catchAsync')
+
 
 exports.aliasTopTour = (req, res, next) => {
   req.query.limit = '5';
@@ -1953,24 +1958,39 @@ exports.aliasTopTour = (req, res, next) => {
   next();
 };
 
-exports.createTour = async (req, res) => {
-  try {
-    const newTour = await Tour.create(req.body);
 
-    res.status(201).json({
-      status: 'success',
-      data: {
-        tour: newTour,
-      },
-      
-    });
-  } catch (err) {
-    res.status(400).json({
-      status: 'Failed',
-      message: err,
-    });
-  }
-};
+//send to utility folder and import it
+// const catchAsync = (fn) => (req, res, next) => {
+// //   fn(req, res, next).catch((err) => next(err));
+//   fn(req, res, next).catch(next);
+// };
+  
+exports.createTour = catchAsync(async (req, res, next) => {
+  const newTour = await Tour.create(req.body);
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      tour: newTour,
+    },
+  });
+
+  //   try {
+  //     // const newTour = await Tour.create(req.body);
+
+  // res.status(201).json({
+  //   status: 'success',
+  //   data: {
+  //     tour: newTour,
+  //   },
+  // });
+  //   } catch (err) {
+  //     res.status(400).json({
+  //       status: 'Failed',
+  //       message: err,
+  //     });
+  //   }
+});
 
 exports.getAllTours = async (req, res) => {
   try {
@@ -2138,4 +2158,170 @@ exports.getMonthlyPlan = async (req, res) => {
       message: err,
     });
   }
+};
+
+
+
+*/
+
+////////////////////////////////////////////////////////////////////////////////////
+
+//DO SAME FOR ALL NOW
+
+const APIFeatures = require('../utils/APIFeatures');
+const Tour = require('../models/tourModel');
+const catchAsync = require('../utils/catchAsync');
+
+
+exports.aliasTopTour = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
+
+exports.createTour = catchAsync(async (req, res, next) => {
+  const newTour = await Tour.create(req.body);
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      tour: newTour,
+    },
+  });
+});
+
+exports.getAllTours = catchAsync( (req, res) => {
+
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const tours = await features.query;
+
+    res.status(200).json({
+      status: 'success',
+      results: tours.length,
+      data: {
+        tours,
+      },
+    });
+  
+}
+)
+exports.getTour = catchAsync( (req, res) => {
+
+    const tour = await Tour.findById(req.params.id);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  
+}
+)
+exports.updateTour = catchAsync( (req, res) => {
+    const tour = await Tour.findOneAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true },
+      { runValidators: true },
+    );
+    res.status(200).json({
+      status: 'success',
+      data: {
+        tour,
+      },
+    });
+  
+}
+)
+exports.deleteTour = catchAsync( (req, res) => {
+    await Tour.findByIdAndDelete(req.params.id);
+    res.status(204).json({
+      status: 'success',
+      data: null,
+    });
+  
+}
+)
+
+exports.getTourStats = catchAsync ((req, res) => {
+
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } },
+      },
+      {
+        $group: {
+          _id: { $toUpper: '$difficulty' },
+          numTours: { $sum: 1 },
+          numRatings: { $sum: '$ratingsQuantity' },
+          avgRating: { $avg: '$ratingsAverage' },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+      {
+        $sort: { avgPrice: 1 },
+      },
+    ]);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        stats,
+      },
+    });
+}
+)
+exports.getMonthlyPlan = async (req, res) => {
+   const year = req.params.year * 1; //2021
+
+    const plan = await Tour.aggregate([
+      {
+        $unwind: '$startDates',
+      },
+
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numTourStarts: { $sum: 1 },
+          tours: { $push: '$name' },
+        },
+      },
+      {
+        $addFields: { months: '$_id' },
+      },
+      {
+        $project: {
+          _id: 0,
+        },
+      },
+      {
+        $sort: { numTourStarts: -1 },
+      },
+      {
+        $limit: 12,
+      },
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        plan,
+      },
+    });
+ 
 };
