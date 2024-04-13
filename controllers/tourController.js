@@ -2191,7 +2191,7 @@ exports.createTour = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllTours = catchAsync( (req, res) => {
+exports.getAllTours = catchAsync(async (req, res,next) => {
 
     const features = new APIFeatures(Tour.find(), req.query)
       .filter()
@@ -2211,9 +2211,9 @@ exports.getAllTours = catchAsync( (req, res) => {
   
 }
 )
-exports.getTour = catchAsync( (req, res) => {
-
+exports.getTour = catchAsync(async (req, res,next) => {
     const tour = await Tour.findById(req.params.id);
+    
     res.status(200).json({
       status: 'success',
       data: {
@@ -2223,7 +2223,7 @@ exports.getTour = catchAsync( (req, res) => {
   
 }
 )
-exports.updateTour = catchAsync( (req, res) => {
+exports.updateTour = catchAsync(async (req, res,next) => {
     const tour = await Tour.findOneAndUpdate(
       req.params.id,
       req.body,
@@ -2239,7 +2239,7 @@ exports.updateTour = catchAsync( (req, res) => {
   
 }
 )
-exports.deleteTour = catchAsync( (req, res) => {
+exports.deleteTour = catchAsync(async (req, res,next) => {
     await Tour.findByIdAndDelete(req.params.id);
     res.status(204).json({
       status: 'success',
@@ -2249,7 +2249,7 @@ exports.deleteTour = catchAsync( (req, res) => {
 }
 )
 
-exports.getTourStats = catchAsync ((req, res) => {
+exports.getTourStats = catchAsync (async(req, res,next) => {
 
     const stats = await Tour.aggregate([
       {
@@ -2278,7 +2278,7 @@ exports.getTourStats = catchAsync ((req, res) => {
     });
 }
 )
-exports.getMonthlyPlan = async (req, res) => {
+exports.getMonthlyPlan = catchAsync(async (req, res,next) => {
    const year = req.params.year * 1; //2021
 
     const plan = await Tour.aggregate([
@@ -2324,4 +2324,4 @@ exports.getMonthlyPlan = async (req, res) => {
       },
     });
  
-};
+})
