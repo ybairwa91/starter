@@ -146,18 +146,18 @@ app.all('*', (req, res, next) => {
 
 
 //bro if any middleware has 4 parameter express automatically understand it as error handling middleware
+//we call it error first function why coz of first argument is error itself
 
 app.use((err, req, res, next) => {
   //lets read statuscode dynamically
   err.statusCode = err.statusCode || 500;
-  err.status = err.status || 'error';
-
+  err.status = err.status || 'error'; 
   res.status(err.statusCode).json({
     status: err.status,
     message: err.message,
   });
 
-  
 });
+  
 
 module.exports = app;
