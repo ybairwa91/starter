@@ -137,13 +137,15 @@ app.all('*', (req, res, next) => {
   const err = new Error(`Cant find ${req.originalUrl} on this server!`);
   err.status = 'fail';
   err.statusCode = 404;
-  next();
+  //next in a special way
+  //passing parameter in next means definitely there is an error
+  next(err);
   });
 
 
 
 
-//bro if any middleware has 4 parameter expressjs automatically understand it as error handling middleware
+//bro if any middleware has 4 parameter express automatically understand it as error handling middleware
 
 app.use((err, req, res, next) => {
   //lets read statuscode dynamically
@@ -155,7 +157,7 @@ app.use((err, req, res, next) => {
     message: err.message,
   });
 
-  next()
+  
 });
 
 module.exports = app;
