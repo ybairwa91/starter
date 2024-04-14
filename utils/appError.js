@@ -7,6 +7,7 @@
 class AppError extends Error {
   constructor(message, statusCode) {
     //to call parent constructor
+
     super(message);
 
     this.statusCode = statusCode;
