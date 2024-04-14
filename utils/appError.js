@@ -13,11 +13,15 @@ class AppError extends Error {
     this.statusCode = statusCode;
     this.status = `${statusCode}`.startsWith('4') ? 'fail' : 'error';
     //apan access krlengee na is code ke through ki agar operational error hai to hi hum ye return krayengee
+    //all error create by ourself are operational errors
+    //bhai next me error pass karenge to yahi pahuchengee na
+    
     this.iSOperational = true;
-   //save from stack trace
+    //save from stack trace
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
+module.exports = AppError;
 
-module.export=AppError
+// new AppError(`Cant find ${req.originalUrl} on this server!`, 404)
