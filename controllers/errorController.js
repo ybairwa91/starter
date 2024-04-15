@@ -267,3 +267,5 @@ module.exports = (err, req, res, next) => {
 //but that rejection has not been handled anywhere
 //handling all promises in a project quite cumbersome so we need to globally handle all promises and how we do that
 //handle at server.js
+
+//Uncaught exceptions--all error or bugs that occured on our synchronous code but not handled anywhere called uncaught exceptions
