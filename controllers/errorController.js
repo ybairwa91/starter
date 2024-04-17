@@ -234,6 +234,7 @@ const sendErrorProd = function (err, res) {
   }
 };
 
+//next me bheje gyee error yaha handle hote hai
 module.exports = (err, req, res, next) => {
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
@@ -244,7 +245,7 @@ module.exports = (err, req, res, next) => {
     // let error = { ...err };
     // console.log(error)
     // console.log(error.name);
-    console.log(err);
+  ;
     if (err.name === 'CastError') {
       err = handleCastErrorDB(err);
     }
