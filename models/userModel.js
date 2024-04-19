@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 
 // CREATING A SCHEMA OR SAYING BLUEPRINT
 const userSchema = new mongoose.Schema({
+
   name: {
     type: String,
     required: [true, 'Please tell us your name'],
@@ -32,30 +33,34 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please provide a password'],
     minLength: 8,
   },
-  
+
   passwordConfirm: {
     type: String,
     required: [true, 'Please Confirm Your Password'],
-    // Remember that validate only work on save.
-    //custom validators work on only on CREATE AND SAVE!!!
-    //ultimately saying when u create a new doc
+
+    //Remember that validate only work on save.
+    //Custom validators work on only on CREATE AND SAVE!!!.
+    //Ultimately saying when u create a new doc.
+
     validate: {
       validator: function (el) {
-        return el === this.password; //el is passwordConfirm  here itself
+        return el === this.password; //el is passwordConfirm  here itself.
       },
       message: 'Password are not the match',
     },
+    
   },
 });
 
 //Encrypt  password storing during signup itself
 // a mongoose middleware will be our saviour
 // using document middleware
-// a presave middleware works before saving the doc
+// a pre_save middleware works before saving the doc
 // call this encrypting password also hashing
 //INSTALL decrypting PACKAGE called bcryptjs
 // import it
 // lets c how
+
 userSchema.pre('save', async function (next) {
   //ONLY run this when only password is modified
   if (!this.isModified('password')) return next();
@@ -63,7 +68,7 @@ userSchema.pre('save', async function (next) {
   //HASHING the password with the cost 12,higher the cost more cpu intensive work
   this.password = await bcrypt.hash(this.password, 12);
 
-  // delete the passcon.. field
+  // delete the passConfirm.. field
   this.passwordConfirm = undefined;
   next();
 });
