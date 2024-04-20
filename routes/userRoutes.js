@@ -8,6 +8,7 @@ const router = express.Router();
 //Doesnot make sense as it doesnot follow rest architecture where url are not verb but simply names
 //but we donot always adhered to it sometimes we are out of the box
 router.route('/signup').post(authController.signup);
+router.route('/login').post(authController.login);
 
 //this are all rest following routes
 router

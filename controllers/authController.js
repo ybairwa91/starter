@@ -41,6 +41,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
@@ -60,5 +61,41 @@ exports.signup = catchAsync(async (req, res, next) => {
     data: {
       user: newUser,
     },
+  });
+});
+
+//////////////////////////////////
+//bhai apan ne signup kara to data jo h wo user bhejega server ko jo apan
+//database me save kr rhee h
+//now what happen is that when user login with his credentials
+//we try to match the same with the store data and if matched then only give
+//furthur permission to use some specific features
+
+exports.login = catchAsync(async (req, res, next) => {
+  const { email, password } = req.body;
+  // 1) Check if email and password exists
+
+  if (!email || !password) {
+    return next(new AppError('Please provide email and password!', 400));
+  }
+  // 2) check if the user exists and password is correct
+  const user = await User.findOne({ email }).select('+password');
+
+  //How to compare these two password
+  // ('testtesttest')="$2a$12$fXwFgG2kG58CnVyC.O6l0eawmQZ5TFlF0/TwcyFdx8xt0iMPbjcO2"
+  //again use bcrypt package
+  //create a function for that basically in userModel(MVC model)
+  //since we created instance method available on all document
+
+  if (!user || !(await user.correctPassword(password))) {
+    // console.log(user);
+    return next(new AppError('Incorrect email or password', 401));
+  }
+
+  // 3) everything is okay ,send token to client
+  const token = '';
+  res.status(200).json({
+    status: 'success',
+    token,
   });
 });
