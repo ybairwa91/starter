@@ -1,3 +1,5 @@
+
+
 const mongoose = require('mongoose');
 const validator = require('validator');
 
@@ -78,10 +80,11 @@ userSchema.methods.correctPassword = async function (
   candidatePassword,
   userPassword,
 ) {
-  return await bcrypt.compare(candidatePassword, userPassword);
+  console.log(await bcrypt.compare(candidatePassword, userPassword));
 };
 
 //Model should always be capital letters
 const User = mongoose.model('User', userSchema);
+
 
 module.exports = User;

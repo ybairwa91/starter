@@ -16,6 +16,7 @@ const catchAsync = require('../utils/catchAsync');
 // }
 
 //creating a handlerFunction called signup
+//signup matlab actually creating a database with account and its details
 exports.signup = catchAsync(async (req, res, next) => {
   //game of mongoose
   const newUser = await User.create(req.body);
@@ -28,6 +29,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 
 */
+//ab sign up ke baad kya hota hai na ki we create a token.
 
 ///////////////////////////////////////
 
@@ -36,12 +38,18 @@ exports.signup = catchAsync(async (req, res, next) => {
 // 1) More realistic user signup details
 // 2) install jsonwebtoken npm
 // 3) read its documentation
-// 4) import it
+// 4) import it.
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/userModel');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+
+const signToken = (id) => {
+  jwt.sign({ id: id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
 
 exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
@@ -51,9 +59,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
+  const token = signToken(newUser._id);
 
   res.status(201).json({
     status: 'success',
@@ -65,10 +71,12 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 
 //////////////////////////////////
-//bhai apan ne signup kara to data jo h wo user bhejega server ko jo apan
+//bhai apan ne signup kara to data jo h wo user 
+//bhejega server ko jo apan
 //database me save kr rhee h
 //now what happen is that when user login with his credentials
-//we try to match the same with the store data and if matched then only give
+//we try to match the same with the store data and if matched
+// then only give
 //furthur permission to use some specific features
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -87,13 +95,14 @@ exports.login = catchAsync(async (req, res, next) => {
   //create a function for that basically in userModel(MVC model)
   //since we created instance method available on all document
 
-  if (!user || !(await user.correctPassword(password))) {
+  if (!user || !(await user.correctPassword(password, user.password))) {
     // console.log(user);
     return next(new AppError('Incorrect email or password', 401));
   }
 
   // 3) everything is okay ,send token to client
-  const token = '';
+  const token = signToken(user._Id);
+
   res.status(200).json({
     status: 'success',
     token,
